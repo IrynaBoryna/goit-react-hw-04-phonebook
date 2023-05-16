@@ -2,20 +2,19 @@ import { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm/contactForm';
 import { ContactList } from './ContactList/contactList';
 import { Filter } from './Filter/filter';
+import PropTypes from 'prop-types';
 
-export function App(props) {
-  const [contacts, setContacts] = useState([]);
+export function App() {
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(localStorage.getItem('contacts')) ?? []
+  });
   const [filter, setFilter] = useState('');
 
-
-    const formSubmit = data => {
-      contacts.some(contacts => contacts.name === data.name)
-        ? alert(` ${data.name} is already in contacts`)
-        : console.log(data)
-      setContacts((prevContacts)=>([...prevContacts,...data]))
-      // setContacts(prevContacts => [...prevContacts,...data]);
-    }
- 
+  const formSubmit = data => {
+    contacts.some(contacts => contacts.name === data[0].name)
+      ? alert(` ${data[0].name} is already in contacts`)
+      : setContacts(prevContacts => [...prevContacts, ...data]);
+  };
 
   const getVisibleContacts = () => {
     const filterToLowerCase = filter.toLowerCase();
@@ -27,15 +26,6 @@ export function App(props) {
   const deleteContact = contactId => {
     setContacts(contacts.filter(contact => contact.id !== contactId));
   };
-
-  useEffect(() => {
-    const contactsList = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contactsList);
-    if (parsedContacts !==[]) {
-      setContacts(parsedContacts);
-       console.log("parsedContacts", parsedContacts);
-    }
-  }, []);
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
@@ -56,7 +46,6 @@ export function App(props) {
           onChange={evt => setFilter(evt.currentTarget.value)}
         />
         <ContactList
-          // contacts={contacts}
           contacts={getVisibleContacts()}
           onDeleteContact={deleteContact}
         />
@@ -73,4 +62,8 @@ const divStyles = {
   fontSize: 40,
   color: '#010101',
   flexDirection: 'column',
+};
+App.prototype = {
+ filter: PropTypes.string,
+  contacts: PropTypes.number,
 };
